@@ -3,6 +3,36 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const url = require('url')
 const publicPath = ''
+// apiservice
+var express = require('express')
+var apiserver = express()
+var bodyParser = require('body-parser')
+apiserver.use(bodyParser.urlencoded({ extended: true }))
+apiserver.use(bodyParser.json())
+var apiRouter = express.Router()
+var fs = require('fs')
+apiRouter.route('/:apiName').all(function (req, res) {
+  fs.readFile('./db.json', 'utf-8', function (err, data) {
+    if (err) throw err
+    var data = JSON.parse(data)
+    if (data[req.params.apiName]) {
+      res.json(data[req.params.apiName])  
+    }
+    else {
+      res.send('no such api name')
+    }
+  })
+})
+apiserver.use('/api', apiRouter)
+apiserver.listen(3000, function (err) {
+  if (err) {
+    console.log(err)
+    return
+  }
+  console.log('Listening at http://localhost:3000\n')
+})
+
+
 
 module.exports = (options = {}) => ({
   entry: {
@@ -49,8 +79,10 @@ module.exports = (options = {}) => ({
     })
   ],
   resolve: {
+    extensions: ['.js', '.vue', '.json'],
     alias: {
-      '~': resolve(__dirname, 'src')
+      '~': resolve(__dirname, 'src'),
+      '@': resolve(__dirname, 'src/components')
     }
   },
   devServer: {
@@ -58,7 +90,7 @@ module.exports = (options = {}) => ({
     port: 8010,
     proxy: {
       '/api/': {
-        target: 'http://127.0.0.1:8080',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''

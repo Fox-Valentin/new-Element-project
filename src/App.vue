@@ -1,33 +1,31 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <h1>{{ msg }}</h1>
-    <el-button @click.native="startHacking">Let's do it</el-button>
+  <div class="app-body">
+    <v-layout></v-layout>
   </div>
 </template>
 
 <script>
+import vLayout from '@/layout/layout'
 export default {
-  data () {
-    return {
-      msg: 'Use Vue 2.0 Today!'
-    }
+  components: {
+    vLayout
   },
-
+  data () {
+    return {}
+  },
   methods: {
-    startHacking () {
-      this.$notify({
-        title: 'It Works',
-        message: 'We have laid the groundwork for you. Now it\'s your time to build something epic!',
-        duration: 6000
-      })
-    }
   }
 }
 </script>
 
 <style>
 body {
-  font-family: Helvetica, sans-serif;
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 }
+  .app-body {
+    position: relative;
+    left: 0;
+    top: 0;
+    height: 100%;
+  }
 </style>
