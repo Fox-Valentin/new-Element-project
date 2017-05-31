@@ -121,5 +121,8 @@
   "getTreeCheckedData": {
     "checkedData" : [1,4,5,9],
     "frontId": 10
+  },
+  "submitTreeData": {
+    "info": "success"
   }
 }

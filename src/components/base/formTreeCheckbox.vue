@@ -12,6 +12,7 @@
         v-loading="loading"
         :expand-on-click-node="false"
         :render-content="renderContent"
+        @check-change="handleCheckChange"
         >
       </el-tree>
       <div class="buttons">
@@ -22,17 +23,23 @@
         <el-button @click="resetChecked">清空</el-button>
         <el-button @click="testFn">testFn</el-button>
         <el-button @click="testFn2">getChecked</el-button>
+        <el-button @click="testFn3">提交</el-button>
       </div>
+      <pre>
+        {{ showData }}
+      </pre>
     </div>
 </template>
 <script>
+import _ from 'lodash'
   export default {
     methods: {
       getCheckedNodes() {
-        this.$refs.tree.getCheckedNodes()
+        this.showData = this.$refs.tree.getCheckedNodes()
       },
       getCheckedKeys() {
-        this.$refs.tree.getCheckedKeys()
+        this.showData = this.$refs.tree.getCheckedKeys()
+        console.log(this.showData)
       },
       setCheckedNodes() {
         this.$refs.tree.setCheckedNodes([{
@@ -84,6 +91,18 @@
       remove(store, data) {
         store.remove(data);
       },
+      testFn3 () {
+        let tempAry = [1, 2, 4, 5, 6, 9, 10]
+        let paramsAry = _.difference(tempAry, this.oldCheckedData)
+        console.log(paramsAry)
+        this.$http.post('/api/submitTreeData', { params: paramsAry }).then((res) => {
+          console.log(res)
+        }, (err) => {
+          console.log(err)
+        })
+      },
+      handleCheckChange(data, checked, indeterminate) {
+      }
     },
     data() {
       return {
@@ -94,7 +113,9 @@
         },
         checkedData: null,
         loading: false,
-        frontId: null
+        frontId: null,
+        showData: null,
+        oldCheckedData: null
       };
     },
     mounted () {
@@ -105,6 +126,7 @@
       })
 
       this.$http.post('/api/getTreeCheckedData', {id: 123}).then((res) => {
+        this.oldCheckedData = res.data.checkedData
         this.$refs.tree.setCheckedKeys(res.data.checkedData)
         this.frontId = res.data.frontId
       }, (err) => {
