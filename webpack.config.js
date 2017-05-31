@@ -89,13 +89,7 @@ module.exports = (options = {}) => ({
     host: '127.0.0.1',
     port: 8010,
     proxy: {
-      '/api/': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api': ''
-        }
-      }
+      '/api/': 'http://localhost:3000'
     },
     historyApiFallback: {
       index: url.parse(options.dev ? '/assets/' : publicPath).pathname
