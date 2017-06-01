@@ -23,7 +23,7 @@
         <el-button @click="resetChecked">清空</el-button>
         <el-button @click="testFn">testFn</el-button>
         <el-button @click="testFn2">getChecked</el-button>
-        <el-button @click="testFn3">提交</el-button>
+        <el-button @click="submitTreeData">提交</el-button>
       </div>
       <pre>
         {{ showData }}
@@ -91,10 +91,8 @@ import _ from 'lodash'
       remove(store, data) {
         store.remove(data);
       },
-      testFn3 () {
-        let tempAry = [1, 2, 4, 5, 6, 9, 10]
-        let paramsAry = _.difference(tempAry, this.oldCheckedData)
-        console.log(paramsAry)
+      submitTreeData () {
+        let paramsAry = this.$refs.tree.getCheckedKeys()
         this.$http.post('/api/submitTreeData', { params: paramsAry }).then((res) => {
           console.log(res)
         }, (err) => {

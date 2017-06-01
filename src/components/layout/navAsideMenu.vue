@@ -16,8 +16,8 @@
             <el-menu-item index="1-4-1">选项1</el-menu-item>
           </el-submenu>
         </el-submenu>
-        <el-menu-item index="2"><i class="el-icon-menu"></i>导航二</el-menu-item>
-        <el-menu-item index="3"><i class="el-icon-setting"></i>导航三</el-menu-item>
+        <router-link :to="{path: '/editUserRightsPage'}"><el-menu-item index="2"><i class="el-icon-menu"></i>角色权限修改</el-menu-item></router-link>
+        <router-link :to="{path: '/editOriginRights'}"><el-menu-item index="3"><i class="el-icon-setting"></i>基本权限的修改</el-menu-item></router-link>
       </el-menu>
     </el-col>
 </template>
