@@ -1,19 +1,40 @@
 <template>
-  <div class="app-body">
-    <v-layout></v-layout>
+  <div class="app-body" v-loading="loading">
+    <v-layout  v-if="isLogin"></v-layout>
+    <v-login v-else></v-login>
   </div>
 </template>
 
 <script>
 import vLayout from '@/layout/layout'
+import vLogin from '@/pages/login'
 export default {
   components: {
-    vLayout
+    vLayout,
+    vLogin
   },
   data () {
-    return {}
+    return {
+      islogin: false,
+      loading: true
+    }
+  },
+  computed: {
+    isLogin () {
+      return this.islogin
+    }
   },
   methods: {
+  },
+  mounted () {
+    this.$http.post('/api/isLogin', {id: 123}).then((res) => {
+      this.loading = false
+      this.islogin = res.data.status
+    }, 
+    (err) => {
+      this.loading = false
+      console.log(err)
+    })
   }
 }
 </script>

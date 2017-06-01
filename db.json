@@ -31,6 +31,12 @@
     "username": "yudongdong",
     "userId": 666666
   },
+  "isLogin": {
+    "status": false
+  },
+  "siginIn": {
+    "status": true
+  },
   "getPrice": {
     "amount": 678
   },
