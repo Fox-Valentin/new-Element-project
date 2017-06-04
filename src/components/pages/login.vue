@@ -38,6 +38,9 @@ export default {
       }
       this.$http.post('/api/siginIn', {id: 123}).then((res) => {
         console.log(res.data.status)
+        if (res.data.status === true) {
+          this.$router.replace('/index')
+        }
       }, 
       (err) => {
         console.log(err)

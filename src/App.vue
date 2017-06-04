@@ -1,17 +1,12 @@
 <template>
   <div class="app-body" v-loading="loading">
-    <v-layout  v-if="isLogin"></v-layout>
-    <v-login v-else></v-login>
+    <router-view :to="{name: 'layout'}"></router-view>
   </div>
 </template>
 
 <script>
-import vLayout from '@/layout/layout'
-import vLogin from '@/pages/login'
 export default {
   components: {
-    vLayout,
-    vLogin
   },
   data () {
     return {
@@ -30,6 +25,9 @@ export default {
     this.$http.post('/api/isLogin', {id: 123}).then((res) => {
       this.loading = false
       this.islogin = res.data.status
+      if (res.data.status === false) {
+        this.$router.replace('/login')
+      }
     }, 
     (err) => {
       this.loading = false

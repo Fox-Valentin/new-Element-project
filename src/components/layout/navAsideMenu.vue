@@ -5,8 +5,8 @@
           <template slot="title"><i class="el-icon-message"></i>导航一</template>
           <el-menu-item-group>
             <template slot="title">分组一</template>
-            <router-link :to="{path : '/'}"><el-menu-item index="1-1">选项1</el-menu-item></router-link>
-            <router-link :to="{path: '/other'}"><el-menu-item index="1-2">选项2</el-menu-item></router-link>
+            <router-link :to="{path : '/index'}"><el-menu-item index="1-1">选项1</el-menu-item></router-link>
+            <router-link :to="{path: '/index/other'}"><el-menu-item index="1-2">选项2</el-menu-item></router-link>
           </el-menu-item-group>
           <el-menu-item-group title="分组2">
             <el-menu-item index="1-3">选项3</el-menu-item>
@@ -16,8 +16,8 @@
             <el-menu-item index="1-4-1">选项1</el-menu-item>
           </el-submenu>
         </el-submenu>
-        <router-link :to="{path: '/editUserRightsPage'}"><el-menu-item index="2"><i class="el-icon-menu"></i>角色权限修改</el-menu-item></router-link>
-        <router-link :to="{path: '/editOriginRights'}"><el-menu-item index="3"><i class="el-icon-setting"></i>基本权限的修改</el-menu-item></router-link>
+        <router-link :to="{path: '/index/editUserRightsPage'}"><el-menu-item index="2"><i class="el-icon-menu"></i>角色权限修改</el-menu-item></router-link>
+        <router-link :to="{path: '/index/editOriginRights'}"><el-menu-item index="3"><i class="el-icon-setting"></i>基本权限的修改</el-menu-item></router-link>
       </el-menu>
     </el-col>
 </template>
