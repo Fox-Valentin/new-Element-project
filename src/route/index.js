@@ -21,10 +21,6 @@ export default new Router({
           component: indexPage
         },
         {
-          path: '',
-          component: welcomePage
-        },
-        {
           path: 'other',
           component: otherPage
         },

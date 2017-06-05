@@ -10,29 +10,15 @@ export default {
   },
   data () {
     return {
-      islogin: false,
-      loading: true
+      loading: null
     }
-  },
-  computed: {
-    isLogin () {
-      return this.islogin
-    }
-  },
-  methods: {
   },
   mounted () {
-    this.$http.post('/api/isLogin', {id: 123}).then((res) => {
-      this.loading = false
-      this.islogin = res.data.status
-      if (res.data.status === false) {
+    this.loading = false    
+    if (this.$store.getters.getLoginState === false) {
         this.$router.replace('/login')
-      }
-    }, 
-    (err) => {
-      this.loading = false
-      console.log(err)
-    })
+        this.loading = false
+    }
   }
 }
 </script>

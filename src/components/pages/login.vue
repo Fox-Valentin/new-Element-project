@@ -11,13 +11,14 @@
                 <el-input v-model="form.pwd"></el-input>
               </el-form-item>
               <el-form-item class="button-wrap">
-                <el-button type="primary" @click="login"  size="large">登陆</el-button>
+                <el-button type="primary" @click="login"  size="large">登录</el-button>
                 <el-button  @click="reset" size="large">重置</el-button>
               </el-form-item>
           </el-form>
         </div>
         </el-col>
     </el-row>
+    <div>{{ isLogin }}</div>
   </div>
 </template>
 <script>
@@ -27,29 +28,35 @@ export default {
       form: {
         name: '',
         pwd: ''
-      }
+      },
+      isLogin: null
     }
   },
   methods: {
     login () {
-      let params = {
-        name: this.form.name,
-        pwd: this.form.pwd        
-      }
-      this.$http.post('/api/siginIn', {id: 123}).then((res) => {
-        console.log(res.data.status)
-        if (res.data.status === true) {
-          this.$router.replace('/index')
-        }
-      }, 
-      (err) => {
-        console.log(err)
+      this.$store.commit('updateLoginParams', {
+        key: 'name',
+        val: this.form.name
       })
+      this.$store.commit('updateLoginParams', {
+        key: 'pwd',
+        val: this.form.pwd
+      })
+      this.$store.dispatch('updateLoginStates').then(() => {
+        if (this.$store.getters.getLoginState === true) {
+          this.$router.replace('/index')
+          console.log(this.$store.getters.getLoginState)
+        }
+      })
+
     },
     reset () {
       this.form.name = ''
       this.form.pwd = ''
     }
+  },
+  mounted () {
+    this.isLogin = this.$store.getters.getLoginState
   }
 }
 </script>

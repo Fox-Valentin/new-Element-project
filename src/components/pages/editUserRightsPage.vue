@@ -9,7 +9,6 @@
         highlight-current
         :default-checked-keys="checkedData"
         :props="defaultProps"
-        v-loading="loading"
         :expand-on-click-node="false"
         >
       </el-tree>
@@ -38,7 +37,6 @@ import _ from 'lodash'
           children: 'children',
           label: 'label'
         },
-        loading: false,
         checkedData: null
       };
     },
