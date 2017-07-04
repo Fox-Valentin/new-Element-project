@@ -4,6 +4,8 @@ import indexPage from '@/pages/indexPage'
 import otherPage from '@/pages/otherPage'
 import editUserRightsPage from '@/pages/editUserRightsPage'
 import editOriginRights from '@/pages/editOriginRights'
+import rightsAdminUserPage from '@/pages/rightsAdminUserPage'
+import addAdminUserPage from '@/pages/addAdminUserPage'
 import welcomePage from '@/pages/welcomePage'
 import login from '@/pages/login'
 import layout from '@/layout/layout'
@@ -31,6 +33,14 @@ export default new Router({
         {
           path: 'editOriginRights',
           component: editOriginRights
+        },
+        {
+          path: 'rightsAdminUserPage',
+          component: rightsAdminUserPage
+        },
+        {
+          path: 'addAdminUserPage',
+          component: addAdminUserPage
         }        
       ]
     },
