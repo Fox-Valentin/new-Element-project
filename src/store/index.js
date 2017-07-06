@@ -1,10 +1,14 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
-import orderList from './modules/loginStatus'
+import loginStatus from './modules/loginStatus'
+import adminUserModule from './modules/adminUserModule'
+import adminTokenModule from './modules/adminTokenModule'
 Vue.use(Vuex)
 export default new Vuex.Store({
   modules: {
-    orderList
+    loginStatus,
+    adminUserModule,
+    adminTokenModule
   }
 })
 

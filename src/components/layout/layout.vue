@@ -9,6 +9,7 @@
   </div>
 </template>
 <script>
+import Vue from "vue"
 import vFooter from '@/layout/footer'
 import vHeader from '@/layout/header'
 import vNavAsideMenu from '@/layout/navAsideMenu'
@@ -19,6 +20,26 @@ export default {
     vHeader,
     vContent,
     vNavAsideMenu
+  },
+  mounted (){
+    if(location.hash.indexOf("access_token") !== -1){
+      let urTokenKey = "access_token"
+      let urlSliceIndex = location.hash.indexOf("access_token") + urTokenKey.length + 1
+      let urlSliceEnd = location.hash.slice(urlSliceIndex).indexOf("&")
+      let token =  location.hash.slice(urlSliceIndex).slice(0,urlSliceEnd)
+      this.$store.commit("setUser",token)
+    }
+    Vue.http.interceptors.push(function(request, next) {
+      request.method = 'POST';
+      var token = "Bearer " + this.$store.getters.getUserToken
+      request.headers.set('Authorization', token)
+      request.headers.set('Accept', "application/json")
+      next()
+    });
+    this.$http.post("/api/login",() => {})
+  },
+  methods: {
+    
   }
 }
 </script>

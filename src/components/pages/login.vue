@@ -22,6 +22,7 @@
   </div>
 </template>
 <script>
+import Vue from "Vue"
 export default {
   data () {
     return {

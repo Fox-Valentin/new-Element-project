@@ -20,9 +20,6 @@ export default {
         this.loading = false
     }
     window.location.href = "http://192.168.1.75/api/redirect"*/
-  },
-  methods: {
-
   }
 }
 </script>

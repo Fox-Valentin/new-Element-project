@@ -3,11 +3,11 @@
       <el-menu default-active="null" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose">
         <el-submenu index="2">
           <template slot="title"><i class="el-icon-message"></i>权限管理</template>
-            <router-link :to="{path : '/index/rightsAdminUserPage'}"><el-menu-item index="1-1">角色管理</el-menu-item></router-link>
-            <router-link :to="{path: '/index/other'}"><el-menu-item index="1-2">选项2</el-menu-item></router-link>
+            <router-link :to="{path : '/adminRightsUserPage'}"><el-menu-item index="1-1">角色管理</el-menu-item></router-link>
+            <router-link :to="{path: '/other'}"><el-menu-item index="1-2">选项2</el-menu-item></router-link>
         </el-submenu>
-        <router-link :to="{path: '/index/editUserRightsPage'}"><el-menu-item index="3"><i class="el-icon-menu"></i>角色权限修改</el-menu-item></router-link>
-        <router-link :to="{path: '/index/editOriginRights'}"><el-menu-item index="4"><i class="el-icon-setting"></i>基本权限的修改</el-menu-item></router-link>
+        <router-link :to="{path: '/editUserRightsPage'}"><el-menu-item index="3"><i class="el-icon-menu"></i>角色权限修改</el-menu-item></router-link>
+        <router-link :to="{path: '/editOriginRights'}"><el-menu-item index="4"><i class="el-icon-setting"></i>基本权限的修改</el-menu-item></router-link>
         <el-submenu index="1">
           <template slot="title"><i class="el-icon-message"></i>导航一</template>
           <el-menu-item-group>
