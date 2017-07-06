@@ -2,10 +2,10 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import indexPage from '@/pages/indexPage'
 import otherPage from '@/pages/otherPage'
-import editUserRightsPage from '@/pages/editRoleRightsPage'
+import editRoleRightsPage from '@/pages/editRoleRightsPage'
 import editOriginRights from '@/pages/editOriginRights'
-import adminRightsUserPage from '@/pages/adminRolePage'
-import addAdminUserPage from '@/pages/addAdminRolePage'
+import adminRolePage from '@/pages/adminRolePage'
+import addAdminRolePage from '@/pages/addAdminRolePage'
 import welcomePage from '@/pages/welcomePage'
 import login from '@/pages/login'
 import layout from '@/layout/layout'
@@ -28,7 +28,7 @@ export default new Router({
         },
         {
           path: 'editRoleRightsPage',
-          component: editUserRightsPage
+          component: editRoleRightsPage
         },
         {
           path: 'editOriginRights',
@@ -36,11 +36,11 @@ export default new Router({
         },
         {
           path: 'adminRolePage',
-          component: adminRightsUserPage
+          component: adminRolePage
         },
         {
           path: 'addAdminRolePage',
-          component: addAdminUserPage
+          component: addAdminRolePage
         }        
       ]
     },

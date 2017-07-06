@@ -7,18 +7,21 @@
     <el-input type="textarea" v-model="form.description"></el-input>
   </el-form-item>
   <el-form-item label="选择站点">
-  <el-select v-model="value" placeholder="请选择">
-    <el-option
-      v-for="item in options"
-      :key="item.value"
-      :label="item.label"
-      :value="item.value">
-    </el-option>
-  </el-select>
+    <el-select v-model="optionValue" placeholder="请选择" size="large">
+      <el-option
+        v-for="item in options"
+        :key="item.id"
+        :label="item.name"
+        :value="item.id">
+      </el-option>
+    </el-select>
   </el-form-item>
   <el-form-item>
     <el-button type="primary" @click="onSubmit">立即创建</el-button>
   </el-form-item>
+  <div>
+    {{optionValue}}
+  </div>
 </el-form>
 </template>
 <script>
@@ -30,29 +33,28 @@ import Vue from "vue"
           name: '',
           desc: ''
         },
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }]
+        options: [],
+        optionValue: ''
       }
+    },
+    mounted() {
+      Vue.http.interceptors.push(function(request, next) {
+        var token = "Bearer " + localStorage.getItem("currentUser_token")
+        request.headers.set('Authorization', token)
+        request.headers.set('Accept', "application/json")
+        next()
+      });
+      this.$http.get("http://192.168.1.75/admin/get_clients").then(
+      (res)=>{
+        this.options = res.data
+      },(err)=>{
+          console.log(err)
+      })
     },
     methods: {
       onSubmit() {
         Vue.http.interceptors.push(function(request, next) {
-          var token = "Bearer " + this.$store.getters.getUserToken
-          console.log(token)
+          var token = "Bearer " + localStorage.getItem("currentUser_token")
           request.headers.set('Authorization', token)
           request.headers.set('Accept', "application/json")
           next()
@@ -60,11 +62,15 @@ import Vue from "vue"
         var params = {
           "name":this.form.name,
           "description":this.form.description,
-          "permission":"1,2,3"
+          "permission":"1,2,3",
+          "client_id":this.optionValue
         }
         this.$http.post("http://192.168.1.75/admin/role",params).then(
         (res)=>{
-          console.log(res)
+            console.log(res)
+          if(res.data.msg === "success"){
+            this.$router.replace("/adminRolePage")
+          }
         },(err)=>{
             console.log(err)
         })

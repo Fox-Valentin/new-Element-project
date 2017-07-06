@@ -36,7 +36,7 @@ export default {
       request.headers.set('Accept', "application/json")
       next()
     });
-    this.$http.post("/api/login",() => {})
+    this.$http.get("/api/login",() => {})
   },
   methods: {
     
