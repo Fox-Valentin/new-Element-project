@@ -4,9 +4,10 @@
         <el-submenu index="2">
           <template slot="title"><i class="el-icon-message"></i>权限管理</template>
             <router-link :to="{path : '/adminRolePage'}"><el-menu-item index="1-1">角色管理</el-menu-item></router-link>
-            <router-link :to="{path: '/other'}"><el-menu-item index="1-2">选项2</el-menu-item></router-link>
+            <router-link :to="{path: '/userAdminPage'}"><el-menu-item index="1-2">用户管理</el-menu-item></router-link>
         </el-submenu>
-        <router-link :to="{path: '/editUserRightsPage'}"><el-menu-item index="3"><i class="el-icon-menu"></i>角色权限修改</el-menu-item></router-link>
+        <router-link :to="{path: '/clientAdminPage'}"><el-menu-item index="5"><i class="el-icon-menu"></i>站点管理</el-menu-item></router-link>
+        <router-link :to="{path: '/editRoleRightsPage'}"><el-menu-item index="3"><i class="el-icon-menu"></i>角色权限修改</el-menu-item></router-link>
         <router-link :to="{path: '/editOriginRights'}"><el-menu-item index="4"><i class="el-icon-setting"></i>基本权限的修改</el-menu-item></router-link>
         <el-submenu index="1">
           <template slot="title"><i class="el-icon-message"></i>导航一</template>
