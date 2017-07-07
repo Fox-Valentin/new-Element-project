@@ -15,7 +15,7 @@ import userAddPage from '@/pages/user/userAddPage'
 import clientAdminPage from '@/pages/client/clientAdminPage'
 import clientAddPage from '@/pages/client/clientAddPage'
 
-import editOriginRights from '@/pages/permission/editOriginRights'
+import permissionAdmin from '@/pages/permission/permissionAdmin'
 import editRoleRightsPage from '@/pages/permission/editRoleRightsPage'
 
 
@@ -41,8 +41,8 @@ export default new Router({
           component: editRoleRightsPage
         },
         {
-          path: 'editOriginRights',
-          component: editOriginRights
+          path: 'permissionAdmin',
+          component: permissionAdmin
         },
         {
           path: 'adminRolePage',

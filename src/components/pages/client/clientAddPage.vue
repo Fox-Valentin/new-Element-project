@@ -1,20 +1,10 @@
 <template>
 <el-form ref="form" :model="form" label-width="80px">
-  <el-form-item label="用户名称">
+  <el-form-item label="站点名称">
     <el-input v-model="form.name"></el-input>
   </el-form-item>
-  <el-form-item label="用户描述">
-    <el-input type="textarea" v-model="form.description"></el-input>
-  </el-form-item>
-  <el-form-item label="选择站点">
-    <el-select v-model="optionValue" placeholder="请选择" size="large">
-      <el-option
-        v-for="item in optionValue"
-        :key="item.id"
-        :label="item.name"
-        :value="item.id">
-      </el-option>
-    </el-select>
+  <el-form-item label="定向地址">
+    <el-input v-model="form.redirect"></el-input>
   </el-form-item>
   <el-form-item>
     <el-button type="primary" @click="onSubmit">立即创建</el-button>
@@ -34,11 +24,26 @@ import Vue from "vue"
         optionValue: ''
       }
     },
-    mounted() {
-      Vue.http.int
-    },
     methods: {
       onSubmit() {
+        Vue.http.interceptors.push(function(request, next) {
+          var token = "Bearer " + localStorage.getItem("currentUser_token")
+          request.headers.set('Authorization', token)
+          request.headers.set('Accept', "application/json")
+          next()
+        });
+        var params = {
+          name:this.form.name,
+          redirect:this.form.redirect
+        }
+        this.$http.post("http://192.168.1.75/admin/add_client",params).then(
+        (res)=>{
+          if(res.data.msg === "success"){
+            this.$router.replace("/clientAdminPage")
+          }
+        },(err)=>{
+            console.log(err)
+        })
       }
     }
   }

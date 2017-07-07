@@ -13,13 +13,16 @@ export default {
       loading: null
     }
   },
-  mounted () {
+  created () {
     this.loading = false    
     /*if (this.$store.getters.getLoginState === false) {
         this.$router.replace('/login')
         this.loading = false
     }
     window.location.href = "http://192.168.1.75/api/redirect"*/
+    if(!localStorage.getItem("currentUser_token")){
+       location.href = "http://192.168.1.75/api/redirect"
+    }
   }
 }
 </script>

@@ -67,7 +67,6 @@ import Vue from "vue"
         }
         this.$http.post("http://192.168.1.75/admin/role",params).then(
         (res)=>{
-            console.log(res)
           if(res.data.msg === "success"){
             this.$router.replace("/adminRolePage")
           }

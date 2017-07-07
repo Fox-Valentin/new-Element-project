@@ -24,8 +24,8 @@
       prop="name">
     </el-table-column>
     <el-table-column
-      label="角色描述"
-      prop="description">
+      label="邮箱地址"
+      prop="email">
     </el-table-column>
     <el-table-column
       label=" 创建时间"
@@ -61,6 +61,9 @@
       <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
     </div>
   </el-dialog>
+  <div>
+    {{tableData}}
+  </div>
   </div>
 </template>
 
@@ -69,47 +72,7 @@ import Vue from "vue"
   export default {
     data() {
       return {
-        tableData: [{
-          "date": "2016-05-02",
-          "name": "王小虎",
-          "address": "上海市普陀区金沙江路 1518 弄",
-          "status":"y"
-        }, {
-          "date": "2016-05-04",
-          "name": "王小虎",
-          "address": "上海市普陀区金沙江路 1517 弄",
-          "status":"y"
-        }, {
-          "date": "2016-05-01",
-          "name": "王小虎",
-          "address": "上海市普陀区金沙江路 1519 弄",
-          "status":"y"
-        }, {
-          "date": "2016-05-03",
-          "name": "王小虎",
-          "address": "上海市普陀区金沙江路 1516 弄",
-          "status":"y"
-        }, {
-          "date": "2016-05-03",
-          "name": "王小虎",
-          "address": "上海市普陀区金沙江路 1516 弄",
-          "status":"y"
-        }, {
-          "date": "2016-05-03",
-          "name": "王小虎",
-          "address": "上海市普陀区金沙江路 1516 弄",
-          "status":"y"
-        }, {
-          "date": "2016-05-03",
-          "name": "王小虎",
-          "address": "上海市普陀区金沙江路 1516 弄",
-          "status":"y"
-        }, {
-          "date": "2016-05-03",
-          "name": "王小虎",
-          "address": "上海市普陀区金沙江路 1516 弄",
-          "status":"n"
-        }],
+        tableData: [],
         formInline: {
           user: '',
           region: ''
@@ -142,6 +105,21 @@ import Vue from "vue"
       }
     },
     mounted () {
+    Vue.http.interceptors.push(function(request, next) {
+      var token = "Bearer " + this.$store.getters.getUserToken
+      request.headers.set('Authorization', token)
+      request.headers.set('Accept', "application/json")
+      next()
+    });
+      this.$http.post("http://192.168.1.75/admin/user/index").then(
+        (res)=>{
+          console.dir(res)
+          this.tableData = res.data.data
+        },
+        (err)=>{
+          console.log(err)
+        }
+      )
     }
   }
 </script>

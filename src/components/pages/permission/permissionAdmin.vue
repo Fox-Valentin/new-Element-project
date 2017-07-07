@@ -14,11 +14,93 @@
       <div class="buttons">
         <el-button @click="submitTreeData">保存</el-button>
       </div>
+      {{data}}
     </div>
 </template>
 <script>
 import _ from 'lodash'
+import Vue from "vue"
   export default {
+    data() {
+      return {
+        data2: null,
+        defaultProps: {
+          children: 'children',
+          label: 'label'
+        },
+        frontId: 10,
+        oldCheckedData: null,
+        dialogFormVisible: false,
+        dialogFormVisible2: false,
+        form: {
+          name: ''
+        },
+        formLabelWidth: '120px',
+        appendData: null,
+        appendStore: null,
+        data:""
+      };
+    },
+    mounted () {
+      // 第一步 搜集所有的父id 确定树父级
+      function setCidAry(ary){
+          var temp = []
+          for(var i in ary){
+              temp.push(ary[i].cid)
+          }
+          //数组去重
+          temp = _.uniq(temp)
+          for(i in temp){
+              temp[i] = []
+          }
+          return temp
+      }
+
+      //第二步 根据搜集到的父id，对原始数据分层级
+      function setLevelAry(cidary,ary){
+          for(var i in ary){
+              cidary[ary[i].cid] = ary[i]
+          }
+          return cidary
+      }
+      //第三步 从分层数据开始，从后向前寻找对应的父节点，合并到父节点，并删除子节点
+      function finalAry(levelAry,callback){
+          var aryNum = levelAry.length - 1
+          if(aryNum === 0){
+              callback(levelAry)
+              return levelAry
+          }
+          for(var i = 0, len1 = levelAry.length; i < len1;i++){
+              for(var j = 0, len2 = levelAry[i].length; j < len2;j++){
+                  if(levelAry[i][j].id === aryNum){
+                      levelAry[i][j].children.push(levelAry[aryNum])
+                  }
+              }
+          }
+          finalAry(_.dropRight(levelAry),callback)
+      }
+      Vue.http.interceptors.push(function(request, next) {
+        var token = "Bearer " + this.$store.getters.getUserToken
+        request.headers.set('Authorization', token)
+        request.headers.set('Accept', "application/json")
+        next()
+      });
+      this.$http.get("http://192.168.1.75/admin/getpermissionlist").then(
+        (res)=>{
+          var cidAry = setCidAry(res.data)
+          var levelAry = setLevelAry(cidAry,res.data)
+          //var temp
+          //finalAry(levelAry,function(ary){ temp = ary})
+          //console.log(temp)
+          console.log(levelAry)
+          console.log(res.data)
+          this.data = res.data
+        },
+        (err)=>{
+          console.log(err)
+        }
+      )
+    },
     methods: {
       renderContent(h, { node, data, store }) {
         return (
@@ -110,38 +192,6 @@ import _ from 'lodash'
       },
       submitTreeData () {
       }
-    },
-    data() {
-      return {
-        data2: null,
-        defaultProps: {
-          children: 'children',
-          label: 'label'
-        },
-        frontId: 10,
-        oldCheckedData: null,
-        dialogFormVisible: false,
-        dialogFormVisible2: false,
-        form: {
-          name: ''
-        },
-        formLabelWidth: '120px',
-        appendData: null,
-        appendStore: null
-      };
-    },
-    mounted () {
-      this.$http.post('/api/getTreeData', {id: 123}).then((res) => {
-        this.data2 = res.data
-      }, (err) => {
-        console.log(err)
-      })
-      this.$http.post('/api/getTreeDataLasttId', {id: 123}).then((res) => {
-        this.frontId = res.data
-      }, (err) => {
-        console.log(err)
-      })
-
     }
   };
 </script>
