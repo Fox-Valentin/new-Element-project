@@ -14,7 +14,6 @@
       <div class="buttons">
         <el-button @click="submitTreeData">保存</el-button>
       </div>
-      {{data}}
     </div>
 </template>
 <script>
@@ -38,47 +37,68 @@ import Vue from "vue"
         formLabelWidth: '120px',
         appendData: null,
         appendStore: null,
+        lastNodeId:null,
         data:""
       };
     },
     mounted () {
+       var ary = [
+        {cid:0,id:1,children:[],"label": "一级 1"},
+        {cid:0,id:12,children:[],"label": "一级 2"},
+        {cid:1,id:2,children:[],"label": "二级 1"},
+        {cid:1,id:3,children:[],"label": "二级 2"},
+        {cid:2,id:4,children:[],"label": "三级 1"},
+        {cid:2,id:5,children:[],"label": "三级 2"},
+        {cid:3,id:6,children:[],"label": "三级 3"},
+        {cid:3,id:7,children:[],"label": "三级 4"},
+        {cid:4,id:8,children:[],"label": "四级 1"},
+        {cid:5,id:9,children:[],"label": "四级 2"}
+      ]
       // 第一步 搜集所有的父id 确定树父级
       function setCidAry(ary){
           var temp = []
+          var obj = {}
           for(var i in ary){
               temp.push(ary[i].cid)
           }
           //数组去重
           temp = _.uniq(temp)
           for(i in temp){
-              temp[i] = []
+              obj[i] = []
           }
-          return temp
+          return obj
       }
 
       //第二步 根据搜集到的父id，对原始数据分层级
       function setLevelAry(cidary,ary){
           for(var i in ary){
-              cidary[ary[i].cid] = ary[i]
+              cidary[ary[i].cid].push(ary[i])
           }
           return cidary
       }
       //第三步 从分层数据开始，从后向前寻找对应的父节点，合并到父节点，并删除子节点
-      function finalAry(levelAry,callback){
-          var aryNum = levelAry.length - 1
-          if(aryNum === 0){
-              callback(levelAry)
-              return levelAry
-          }
-          for(var i = 0, len1 = levelAry.length; i < len1;i++){
-              for(var j = 0, len2 = levelAry[i].length; j < len2;j++){
-                  if(levelAry[i][j].id === aryNum){
-                      levelAry[i][j].children.push(levelAry[aryNum])
+      function finalAry(levelAry,ary){
+            _.forInRight(levelAry,function(val,key){
+                  for(var i in ary){
+                        if(ary[i].id == key){
+                              for(var j in val){
+                                    ary[i].children.push(val[j])
+                              }
+                        }
                   }
-              }
-          }
-          finalAry(_.dropRight(levelAry),callback)
+            })
+            var obj = []
+            for(var i = 0; i < levelAry[0].length; i++){
+                  obj.push(ary[i])
+            }
+            return obj
       }
+      var temp1 = setCidAry(ary)
+      var temp2 = setLevelAry(temp1,ary)
+      var temp3 = finalAry(temp2,ary)
+      this.data2 = temp3
+      console.log(JSON.stringify(temp3))
+
       Vue.http.interceptors.push(function(request, next) {
         var token = "Bearer " + this.$store.getters.getUserToken
         request.headers.set('Authorization', token)
@@ -94,7 +114,7 @@ import Vue from "vue"
           //console.log(temp)
           console.log(levelAry)
           console.log(res.data)
-          this.data = res.data
+          //this.data = res.data
         },
         (err)=>{
           console.log(err)
@@ -116,6 +136,9 @@ import Vue from "vue"
           </span>);
       },
       appendDialog(store, data) {
+        store.append({ id: id++, label: 'testtest', children: [] }, data);
+        console.log(store)
+        console.log(data)
         let id = ++this.frontId
         let params = {
           parentId: data.id,
@@ -134,7 +157,7 @@ import Vue from "vue"
               type: 'success',
               message: '你的权限名称是: ' + value
             });
-            store.append({ id: id, label: value, children: [] }, data);
+            //store.append({ id: id, label: value, children: [] }, data);
           }, (err) => {
             console.log(err)
           })

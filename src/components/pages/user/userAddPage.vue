@@ -11,7 +11,7 @@
   </el-form-item>
   <el-form-item label="选择角色">
     <el-checkbox-group v-model="checkList">
-      <el-checkbox v-for="item in checkListData" :label="item.id">{{item.name}}</el-checkbox>
+      <el-checkbox v-for="item,key in checkListData" :label="item.id">{{item.name}}</el-checkbox>
     </el-checkbox-group>
   </el-form-item>
   <el-form-item>

@@ -21,7 +21,7 @@ export default {
     }
     window.location.href = "http://192.168.1.75/api/redirect"*/
     if(!localStorage.getItem("currentUser_token")){
-       location.href = "http://192.168.1.75/api/redirect"
+       //location.href = "http://192.168.1.75/api/redirect"
     }
   }
 }
