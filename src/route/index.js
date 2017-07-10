@@ -6,8 +6,8 @@ import login from '@/pages/login'
 import layout from '@/layout/layout'
 import welcomePage from '@/pages/welcomePage'
 
-import adminRolePage from '@/pages/role/adminRolePage'
-import addAdminRolePage from '@/pages/role/addAdminRolePage'
+import roleAdminPage from '@/pages/role/roleAdminPage'
+import roleAddAdminPage from '@/pages/role/roleAddAdminPage'
 
 import userAdminPage from '@/pages/user/userAdminPage'
 import userAddPage from '@/pages/user/userAddPage'
@@ -45,12 +45,12 @@ export default new Router({
           component: permissionAdmin
         },
         {
-          path: 'adminRolePage',
-          component: adminRolePage
+          path: 'roleAdminPage',
+          component: roleAdminPage
         },
         {
-          path: 'addAdminRolePage',
-          component: addAdminRolePage
+          path: 'roleAddAdminPage',
+          component: roleAddAdminPage
         },
         {
           path: 'userAdminPage',

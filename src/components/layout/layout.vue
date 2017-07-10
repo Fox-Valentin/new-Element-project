@@ -30,7 +30,6 @@ export default {
       this.$store.commit("setUser",token)
     }
     Vue.http.interceptors.push(function(request, next) {
-      request.method = 'POST';
       var token = "Bearer " + this.$store.getters.getUserToken
       request.headers.set('Authorization', token)
       request.headers.set('Accept', "application/json")

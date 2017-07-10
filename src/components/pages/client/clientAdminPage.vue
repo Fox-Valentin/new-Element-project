@@ -39,28 +39,26 @@
       <template scope="scope">
         <el-button
           size="small"
-          @click="dialogFormVisible = true">编辑</el-button>
-          <el-button size="small" type="danger" @click="open2(scope.row.id)">删除</el-button>
+          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
-  <el-dialog title="编辑用户" :visible.sync="dialogFormVisible">
+  <el-dialog title="编辑用户" :visible.sync="dialogFormVisible"  size="tiny">
       <el-form>
-        <el-form-item label="用户名称" :label-width="formLabelWidth">
-          <el-input auto-complete="off"></el-input>
+        <el-form-item label="站点名称" :label-width="formLabelWidth">
+          <el-input auto-complete="off" v-model="row.name"></el-input>
         </el-form-item>
-        <el-form-item label="选择站点" :label-width="formLabelWidth">
-          <el-select placeholder="请选择站点">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
+        <el-form-item label="定向地址" :label-width="formLabelWidth">
+          <el-input auto-complete="off" v-model="row.redirect"></el-input>
         </el-form-item>
       </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="dialogFormVisible = false">取 消</el-button>
-      <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+      <el-button type="primary" @click="">确 定</el-button>
     </div>
   </el-dialog>
+  {{ row }}
   </div>
 </template>
 
@@ -76,19 +74,39 @@ import Vue from "vue"
         },
         formLabelWidth: '120px',
         dialogFormVisible: false,
+        row:{
+          id:null,
+          name:"",
+          redirect:""
+        }
       }
     },
     methods: {
       handleEdit(index, row) {
-        console.log(index, row);
+        this.dialogFormVisible = true
+        this.row = row
       },
-      handleDelete() {},
-      open2(id) {
+      handleDelete(index, row) {
         this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          var params = {
+            id:row.id
+          }
+          this.$http.post("http://192.168.1.75/admin/delete_client",params).then(
+            (res)=>{
+                if(res.data.msg == "删除成功"){
+                  this.updateTableData()
+                  this.$message({
+                    type: 'success',
+                    message: res.data.msg
+                  });
+                }
+            },
+            (err)=>{}
+          )
           this.$message({
             type: 'success',
             message: '删除成功!'
@@ -99,6 +117,36 @@ import Vue from "vue"
             message: '已取消删除'
           });          
         });
+      },
+      updateTableData(){
+        this.$http.get("http://192.168.1.75/admin/get_clients").then(
+          (res)=>{
+            this.tableData = res.data
+          },
+          (err)=>{
+            console.log(err)
+          }
+        )
+      },
+      handleEditSubmit(){
+        var params = {
+          id:this.row.id,
+          name:this.row.name,
+          redirect:this.row.redirect
+        }
+        this.$http.post("http://192.168.1.75/admin/update_client",params).then(
+          (res)=>{
+            if(res.data.msg=='success'){
+                this.updateTableData();
+                this.$message({
+                message: '恭喜你，编辑保存成功',
+                type: 'success'
+              });
+            }
+          },
+          (err)=>{}
+        )
+        
       }
     },
     mounted () {
@@ -110,7 +158,6 @@ import Vue from "vue"
         });
         this.$http.get("http://192.168.1.75/admin/get_clients").then(
           (res)=>{
-            console.log(res)
             this.tableData = res.data
           },
           (err)=>{

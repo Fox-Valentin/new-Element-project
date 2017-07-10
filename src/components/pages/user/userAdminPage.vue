@@ -39,36 +39,42 @@
       <template scope="scope">
         <el-button
           size="small"
-          @click="dialogFormVisible = true">编辑</el-button>
-          <el-button size="small" type="danger" @click="open2(scope.row.id)">删除</el-button>
+          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
-  <el-dialog title="编辑用户" :visible.sync="dialogFormVisible">
-      <el-form>
+  <el-dialog title="编辑用户" :visible.sync="dialogFormVisible"   size="tiny">
+      <el-form v-model="row">
         <el-form-item label="用户名称" :label-width="formLabelWidth">
-          <el-input auto-complete="off"></el-input>
+          <el-input auto-complete="off"  v-model="row.name"></el-input>
         </el-form-item>
-        <el-form-item label="选择站点" :label-width="formLabelWidth">
-          <el-select placeholder="请选择站点">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
+        <el-form-item label="用户密码" :label-width="formLabelWidth">
+          <el-input auto-complete="off"  v-model="row.password"></el-input>
+        </el-form-item>
+        <el-form-item label="用户邮箱" :label-width="formLabelWidth">
+          <el-input auto-complete="off"  v-model="row.email"></el-input>
+        </el-form-item>
+        <el-form-item label="角色选择" :label-width="formLabelWidth">
+          <el-checkbox-group v-model="checkList">
+            <template v-for="roleList in roleLists">
+                  <el-checkbox :label="roleList.id">{{roleList.name}}</el-checkbox>
+            </template>
+          </el-checkbox-group>
         </el-form-item>
       </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="dialogFormVisible = false">取 消</el-button>
-      <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+      <el-button type="primary" @click="handleEditSubmit">确 定</el-button>
     </div>
   </el-dialog>
-  <div>
-    {{tableData}}
-  </div>
+    {{row}}
   </div>
 </template>
 
 <script>
 import Vue from "vue"
+import _ from "lodash"
   export default {
     data() {
       return {
@@ -78,30 +84,71 @@ import Vue from "vue"
           region: ''
         },
         formLabelWidth: '120px',
-        dialogFormVisible: false
+        dialogFormVisible: false,
+        row:{
+          id:"",
+          name:"",
+          password:"",
+          email:""
+        },
+        checkList:[],
+        roleLists:[]
       }
-    },
+    }, 
     methods: {
       handleEdit(index, row) {
-        console.log(index, row);
+        this.dialogFormVisible=true;
+        this.row = row
+        this.checkList = row.roles.map(ele => ele.id)
       },
-      handleDelete() {},
-      open2(id) {
-        this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
+      handleDelete(index, row) {
+          this.$confirm('此操作将永久删除用户, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            _.remove(this.tableData,function(n){
+                return n.id == row.id
+            })
+            var params = { _method: 'delete'}
+            this.$http.post("http://192.168.1.75/admin/user/"+row.id,params).then(
+              (res)=>{
+                if(res.data.msg == "删除成功"){
+                  this.$message({
+                    type: 'success',
+                    message: res.data.msg
+                  });
+                }
+              },
+              (err)=>{})
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });          
           });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
-        });
+        },
+      handleEditSubmit(){
+        this.dialogFormVisible=false
+        let params = {
+          _method: 'put',
+          name: this.row.name,
+          password: this.row.password,
+          email: this.row.email,
+          roles: this.checkList
+        }
+        this.$http.post("http://192.168.1.75/admin/user/"+this.row.id,params).then(
+          (res)=>{
+            if(res.data.msg=='success'){
+                this.refreshTable();
+                this.$message({
+                message: '恭喜你，编辑保存成功',
+                type: 'success'
+              });
+            }
+          },
+          (err)=>{}
+        )
       }
     },
     mounted () {
@@ -113,13 +160,18 @@ import Vue from "vue"
     });
       this.$http.post("http://192.168.1.75/admin/user/index").then(
         (res)=>{
-          console.dir(res)
           this.tableData = res.data.data
         },
         (err)=>{
           console.log(err)
         }
       )
+      this.$http.post("http://192.168.1.75/admin/role/index").then(
+      (res)=>{
+        this.roleLists = res.data.data;
+      },(err)=>{
+          console.log(err)
+      });
     }
   }
 </script>
