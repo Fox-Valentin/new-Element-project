@@ -38,7 +38,8 @@ import Vue from "vue"
         }
         this.$http.post("http://192.168.1.75/admin/add_client",params).then(
         (res)=>{
-          if(res.data.msg === "success"){
+          console.log(res.data)
+          if(res.data.msg === "添加成功"){
             this.$router.replace("/clientAdminPage")
           }
         },(err)=>{

@@ -3,7 +3,7 @@
       <el-menu default-active="null" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose">
         <el-submenu index="2">
           <template slot="title"><i class="el-icon-message"></i>权限管理</template>
-            <router-link :to="{path : '/adminRolePage'}"><el-menu-item index="1-1">角色管理</el-menu-item></router-link>
+            <router-link :to="{path : '/roleAdminPage'}"><el-menu-item index="1-1">角色管理</el-menu-item></router-link>
             <router-link :to="{path: '/userAdminPage'}"><el-menu-item index="1-2">用户管理</el-menu-item></router-link>
         </el-submenu>
         <router-link :to="{path: '/clientAdminPage'}"><el-menu-item index="5"><i class="el-icon-menu"></i>站点管理</el-menu-item></router-link>
