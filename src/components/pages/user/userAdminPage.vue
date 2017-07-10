@@ -107,9 +107,6 @@ import _ from "lodash"
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            _.remove(this.tableData,function(n){
-                return n.id == row.id
-            })
             var params = { _method: 'delete'}
             this.$http.post("http://192.168.1.75/admin/user/"+row.id,params).then(
               (res)=>{
@@ -142,12 +139,22 @@ import _ from "lodash"
             if(res.data.msg=='success'){
                 this.refreshTable();
                 this.$message({
-                message: '恭喜你，编辑保存成功',
+                message: '编辑保存成功',
                 type: 'success'
               });
             }
           },
           (err)=>{}
+        )
+      },
+      refreshTable(){
+        this.$http.post("http://192.168.1.75/admin/user/index").then(
+          (res)=>{
+            this.tableData = res.data.data
+          },
+          (err)=>{
+            console.log(err)
+          }
         )
       }
     },
