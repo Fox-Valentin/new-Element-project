@@ -1,5 +1,6 @@
 <template>
   <div>
+      <v-breadcrumb :routerProp="routerProp"></v-breadcrumb>
   <el-form :inline="true" :model="formInline" class="demo-form-inline">
     <el-form-item>
       <router-link :to="{path: '/roleAddAdminPage'}">
@@ -51,7 +52,7 @@
       </template>
     </el-table-column>
   </el-table>
-  <el-dialog title="角色编辑" :visible.sync="dialogFormVisible"   size="tiny">
+  <el-dialog title="角色编辑" :visible.sync="dialogFormVisible" >
     <el-form :model="row">
       <el-form-item label="角色名称" :label-width="formLabelWidth">
         <el-input v-model="row.name" auto-complete="off"></el-input>
@@ -66,14 +67,17 @@
           </template>
       </el-select>
       </el-form-item>
-      <el-form-item label="权限列表" :label-width="formLabelWidth">
-        <el-checkbox-group v-model="checkList">
-          <template v-for="permission in permissions">
-              <el-checkbox :label="permission.id">{{permission.name}}</el-checkbox>
-        </template>
-        </el-checkbox-group>
-      </el-form-item>
-
+        <el-form-item label="选择权限"  :label-width="formLabelWidth">
+            <el-tree
+              :data="dataTableTree"
+              show-checkbox
+              default-expand-all
+              node-key="id"
+              ref="tree"
+              highlight-current
+              :props="defaultProps">
+            </el-tree>
+        </el-form-item>
       </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -81,7 +85,7 @@
     </div>
   </el-dialog>
   <div>
-    {{permissions}}
+    {{row}}
   </div>
   </div>
 </template>
@@ -89,9 +93,14 @@
 <script>
 import Vue from "vue"
 import _ from "lodash"
+import vBreadcrumb from '@/layout/breadcrumb'
   export default {
+    components: {
+      vBreadcrumb
+    },
     data() {
       return {
+        routerProp:"角色管理",
         tableData: [],
         formInline: {
           user: '',
@@ -104,16 +113,27 @@ import _ from "lodash"
           description:'',
           client_id:''
         },
-        checkList:[],
         permissions:[],
-        clients:[]
+        clients:[],
+        dataTableTree:[],
+        defaultProps: {
+          children: 'children',
+          label: 'name'
+        }
       }
     },
     methods: {
+      setCheckedKeys() {
+        this.$refs.tree.setCheckedKeys([])
+        this.$refs.tree.setCheckedKeys(this.row.permissions.map(ele => ele.id));
+      },
       handleEdit(index, row) {
         this.dialogFormVisible=true;
         this.row = row;
-        this.checkList = row.permissions.map(ele => ele.id);
+        var _this = this
+        setTimeout(function(){
+          _this.setCheckedKeys()
+        },100)
       },
       handleDelete(index, row) {
         this.$confirm('此操作将永久删除角色, 是否继续?', '提示', {
@@ -148,30 +168,76 @@ import _ from "lodash"
           client_id: this.row.client_id,
           name: this.row.name,
           description: this.row.description,
-          permissions: this.checkList
+          permissions: this.$refs.tree.getCheckedKeys()
         }
         this.$http.post("http://192.168.1.75/admin/role/"+this.row.id, paramData).then(
-      (res)=>{
-          if(res.data.msg=='success'){
-              this.refreshTable();
-              this.$message({
-              message: '恭喜你，编辑保存成功',
-              type: 'success'
-            });
+          (res)=>{
+              if(res.data.msg=='success'){
+                  this.refreshTable();
+                  this.$message({
+                  message: '恭喜你，编辑保存成功',
+                  type: 'success'
+                });
+              }
+          },(err)=>{
+              console.log(err)
+          })
+        },
+        refreshTable(){
+          this.$http.post("http://192.168.1.75/admin/role/index").then(
+          (res)=>{
+            this.$store.commit("upadtegetAdminTableData",res.data.data)
+            this.tableData = this.$store.getters.getAdminTableData
+          },(err)=>{
+              console.log(err)
+          })
+        },
+        __treeDataFormate(ary){
+          // 第一步 搜集所有的父id 确定树父级
+                function setCidAry(ary){
+                    var temp = []
+                    var obj = {}
+                    for(var i in ary){
+                        temp.push(ary[i].cid)
+                        ary[i]["children"] = []
+                    }
+                    //数组去重
+                    temp = _.uniq(temp)
+                    for(i in temp){
+                        obj[temp[i]] = []
+                    }
+                    return obj
+                }
+
+                //第二步 根据搜集到的父id，对原始数据分层级
+                function setLevelAry(cidary,ary){
+                    for(var i in ary){
+                        cidary[ary[i].cid].push(ary[i])
+                    }
+                    return cidary
+                }
+                //第三步 从分层数据开始，从后向前寻找对应的父节点，合并到父节点，并删除子节点
+                function finalAry(levelAry,ary){
+                      _.forInRight(levelAry,function(val,key){
+                            for(var i in ary){
+                                  if(ary[i].id == key){
+                                        for(var j in val){
+                                              ary[i].children.push(val[j])
+                                        }
+                                  }
+                            }
+                      })
+                      var obj = []
+                      for(var i = 0; i < levelAry[0].length; i++){
+                            obj.push(ary[i])
+                      }
+                      return obj
+                }
+                var temp1 = setCidAry(ary)
+                var temp2 = setLevelAry(temp1,ary)
+                var temp3 = finalAry(temp2,ary)
+                return temp3
           }
-      },(err)=>{
-          console.log(err)
-      })
-    },
-    refreshTable(){
-      this.$http.post("http://192.168.1.75/admin/role/index").then(
-      (res)=>{
-        this.$store.commit("upadtegetAdminTableData",res.data.data)
-        this.tableData = this.$store.getters.getAdminTableData
-      },(err)=>{
-          console.log(err)
-      })
-    }
     },
     mounted () {
       Vue.http.interceptors.push(function(request, next) {
@@ -182,14 +248,13 @@ import _ from "lodash"
       });
          this.$http.get("http://192.168.1.75/admin/getpermissionlist").then(
       (res)=>{
-        this.permissions = res.data;
+        this.dataTableTree = this.__treeDataFormate(res.data)
       },(err)=>{
           console.log(err)
       });
        this.$http.get("http://192.168.1.75/admin/get_clients").then(
       (res)=>{
         this.clients = res.data;
-          console.log(this.clients)        
       },(err)=>{
           console.log(err)
       });

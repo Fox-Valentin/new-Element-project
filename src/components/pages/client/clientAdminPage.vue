@@ -1,5 +1,6 @@
 <template>
   <div>
+      <v-breadcrumb :routerProp="routerProp"></v-breadcrumb>
   <el-form :inline="true" :model="formInline" class="demo-form-inline">
     <el-form-item>
       <router-link :to="{path: '/clientAddPage'}">
@@ -64,9 +65,14 @@
 
 <script>
 import Vue from "vue"
+import vBreadcrumb from '@/layout/breadcrumb'
   export default {
+    components: {
+      vBreadcrumb
+    },
     data() {
       return {
+        routerProp:"站点管理",
         tableData: [],
         formInline: {
           user: '',

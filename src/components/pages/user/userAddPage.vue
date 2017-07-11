@@ -1,5 +1,5 @@
 <template>
-<el-form ref="form" :model="form" label-width="80px">
+<el-form ref="form" :model="form" label-width="80px" :rules="rules">
   <el-form-item label="用户名称">
     <el-input v-model="form.name"></el-input>
   </el-form-item>
@@ -34,7 +34,18 @@ import Vue from "vue"
           email: ''
         },
         checkList: [],
-        checkListData:[]        
+        checkListData:[],
+        rules: {
+          name: [
+            { required: true, message: '请输入名称', trigger: 'blur' }
+          ],
+          website:[
+           { required: true, message: '请选择站点', trigger: 'change' }
+          ],
+          description:[
+            { required: true, message: '请输入描述', trigger: 'blur' }
+          ]
+        }
       }
     },
     mounted() {

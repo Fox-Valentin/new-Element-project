@@ -37,11 +37,12 @@ function __treeDataFormate(ary){
           var obj = {}
           for(var i in ary){
               temp.push(ary[i].cid)
+              ary[i]["children"] = []
           }
           //数组去重
           temp = _.uniq(temp)
           for(i in temp){
-              obj[i] = []
+              obj[temp[i]] = []
           }
           return obj
       }
@@ -73,7 +74,6 @@ function __treeDataFormate(ary){
       var temp1 = setCidAry(ary)
       var temp2 = setLevelAry(temp1,ary)
       var temp3 = finalAry(temp2,ary)
-      console.log(JSON.stringify(temp3))
       return temp3
 }
 export default {

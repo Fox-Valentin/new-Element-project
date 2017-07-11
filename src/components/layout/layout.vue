@@ -5,18 +5,15 @@
       <v-nav-aside-menu></v-nav-aside-menu>
       <v-content></v-content>
     </el-row>
-    <v-footer></v-footer>
   </div>
 </template>
 <script>
 import Vue from "vue"
-import vFooter from '@/layout/footer'
 import vHeader from '@/layout/header'
 import vNavAsideMenu from '@/layout/navAsideMenu'
 import vContent from '@/layout/content'
 export default {
   components: {
-    vFooter,
     vHeader,
     vContent,
     vNavAsideMenu
