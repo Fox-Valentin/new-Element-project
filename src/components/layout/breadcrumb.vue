@@ -1,7 +1,7 @@
 <template>
     <el-breadcrumb separator="/" class="breadcrumb-wrapper">
     <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-    <el-breadcrumb-item>{{ routerProp }}</el-breadcrumb-item>
+    <el-breadcrumb-item v-for="item in routerProp" :to="{ path: item.path }">{{ item.lebal }}</el-breadcrumb-item>
     </el-breadcrumb>
 </el-breadcrumb>
 </template>

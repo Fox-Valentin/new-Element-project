@@ -4,7 +4,7 @@
         <router-link :to="{path : '/roleAdminPage'}"><el-menu-item index="1"><i class="el-icon-star-on"></i>角色管理</el-menu-item></router-link>
         <router-link :to="{path: '/userAdminPage'}"><el-menu-item index="2"><i class="el-icon-star-off"></i>用户管理</el-menu-item></router-link>
         <router-link :to="{path: '/clientAdminPage'}"><el-menu-item index="5"><i class="el-icon-menu"></i>站点管理</el-menu-item></router-link>
-        <router-link :to="{path: '/permissionAdmin'}"><el-menu-item index="4"><i class="el-icon-setting"></i>权限管理</el-menu-item></router-link>
+        <router-link :to="{path: '/permissionAdminPage'}"><el-menu-item index="4"><i class="el-icon-setting"></i>权限管理</el-menu-item></router-link>
       </el-menu>
     </el-col>
 </template>

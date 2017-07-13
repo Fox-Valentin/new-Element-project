@@ -1,6 +1,13 @@
   <template>
     <div >
       <v-breadcrumb :routerProp="routerProp"></v-breadcrumb>
+      <el-form :inline="true" class="demo-form-inline">
+        <el-form-item>
+          <router-link :to="{path: '/permissionAddPage'}">
+          <el-button type="primary">增加元权限</el-button>
+          </router-link>
+        </el-form-item>
+      </el-form>
       <el-tree
         :data="dataTable"
         default-expand-all
@@ -8,36 +15,37 @@
         ref="tree"
         highlight-current
         :props="defaultProps"
+        :expand-on-click-node="false"
         :render-content="renderContent"
         >
       </el-tree>
       <el-dialog title="增加权限" :visible.sync="dialogFormVisibleAppend">
-        <el-form>
-          <el-form-item label="权限名称" :label-width="formLabelWidth">
+        <el-form :model="formAppend" ref="form1" :rules="rules">
+          <el-form-item label="权限名称" :label-width="formLabelWidth" prop="name">
             <el-input v-model="formAppend.name" auto-complete="off"></el-input>
           </el-form-item>
-          <el-form-item label="权限描述" :label-width="formLabelWidth">
-            <el-input v-model="formAppend.description" auto-complete="off"></el-input>
+          <el-form-item label="权限描述" :label-width="formLabelWidth" prop="description">
+            <el-input type="textarea" v-model="formAppend.description" auto-complete="off"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisibleAppend = false">取 消</el-button>
-          <el-button type="primary" @click="subAppend">确 定</el-button>
+          <el-button type="primary" @click="subAppend('form1')">确 定</el-button>
         </div>
       </el-dialog>
       
       <el-dialog title="编辑权限" :visible.sync="dialogFormVisibleEdit">
-        <el-form>
-          <el-form-item label="权限名称" :label-width="formLabelWidth">
+        <el-form :model="formEdit" ref="form1" :rules="rules">
+          <el-form-item label="权限名称" :label-width="formLabelWidth" prop="name">
             <el-input v-model="formEdit.name" auto-complete="off"></el-input>
           </el-form-item>
-          <el-form-item label="权限描述" :label-width="formLabelWidth">
+          <el-form-item label="权限描述" :label-width="formLabelWidth" prop="description">
             <el-input v-model="formEdit.description" auto-complete="off"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
-          <el-button type="primary" @click="subEdit">确 定</el-button>
+          <el-button type="primary" @click="subEdit('form1')">确 定</el-button>
         </div>
       </el-dialog>
     </div>
@@ -52,7 +60,12 @@ import vBreadcrumb from '@/layout/breadcrumb'
     },
     data() {
       return {
-        routerProp:'权限管理',
+      routerProp:[
+          {
+            lebal:'权限管理',
+            path:'/permissionAdminPage'
+          }
+        ],
         dataTable: null,
         defaultProps: {
           children: 'children',
@@ -73,7 +86,15 @@ import vBreadcrumb from '@/layout/breadcrumb'
         lastId:null,
         dialogFormVisibleAppend:false,
         dialogFormVisibleEdit:false,
-        data:""
+        data:"",
+        rules: {
+          name: [
+            { required: true, message: '请输入名称', trigger: 'blur' }
+          ],
+          description:[
+           { required: true, message: '请输入描述', trigger: 'blur' }
+          ]
+        }
       };
     },
     mounted () {
@@ -116,24 +137,30 @@ import vBreadcrumb from '@/layout/breadcrumb'
         this.tempFormData.store = store
         this.tempFormData.data = data
       },
-      subAppend(){
-        var params = {
-          cid:this.tempFormData.data.id,
-          name: this.formAppend.name,
-          description: this.formAppend.description
-        }
-        this.$http.post("http://192.168.1.75/admin/permission",params).then(
-          (res)=>{
-            if(res.data.msg=='success'){
-                this.lastId = null
-                this.updateDataTable()
-                this.dialogFormVisibleAppend = false
-                this.$message({
-                message: '添加成功',
-                type: 'success'
-              })
-            }
-          },(err)=>{})
+      subAppend(formName){
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+              var params = {
+                cid:this.tempFormData.data.id,
+                name: this.formAppend.name,
+                description: this.formAppend.description
+              }
+              this.$http.post("http://192.168.1.75/admin/permission",params).then(
+                (res)=>{
+                  if(res.data.msg=='success'){
+                      this.updateDataTable()
+                      this.dialogFormVisibleAppend = false
+                      this.$message({
+                      message: '添加成功',
+                      type: 'success'
+                    })
+                  }
+                },(err)=>{})
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
       },
       handleDelete (store, data) {
         let params = {
@@ -174,26 +201,32 @@ import vBreadcrumb from '@/layout/breadcrumb'
         }
         console.log(data)
       },
-      subEdit(){
-        var params = {
-          name:this.formEdit.name,
-          cid:this.formEdit.cid,
-          description:this.formEdit.description,
-          _method:"put"
-        }
-        this.$http.post("http://192.168.1.75/admin/permission/"+this.formEdit.id,params).then(
-          (res)=>{
-            if(res.data.msg=='success'){
-                this.lastId = null
-                this.updateDataTable()
-                this.dialogFormVisibleEdit = false
-                this.$message({
-                message: '编辑成功',
-                type: 'success'
-              })
-            }
-          },(err)=>{}
-        )
+      subEdit(formName){
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+              var params = {
+                name:this.formEdit.name,
+                cid:this.formEdit.cid,
+                description:this.formEdit.description,
+                _method:"put"
+              }
+              this.$http.post("http://192.168.1.75/admin/permission/"+this.formEdit.id,params).then(
+                (res)=>{
+                  if(res.data.msg=='success'){
+                      this.lastId = null
+                      this.updateDataTable()
+                      this.dialogFormVisibleEdit = false
+                      this.$message({
+                      message: '编辑成功',
+                      type: 'success'
+                    })
+                  }
+                },(err)=>{}
+              )
+          } else {
+            return false;
+          }
+        });
       },
       __treeDataFormate(ary){
         // 第一步 搜集所有的父id 确定树父级
@@ -231,8 +264,10 @@ import vBreadcrumb from '@/layout/breadcrumb'
                           }
                     })
                     var obj = []
-                    for(var i = 0; i < levelAry[0].length; i++){
+                    for(var i in ary){
+                        if(ary[i].cid === 0){
                           obj.push(ary[i])
+                        }
                     }
                     return obj
               }

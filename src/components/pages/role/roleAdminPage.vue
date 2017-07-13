@@ -1,7 +1,7 @@
 <template>
   <div>
       <v-breadcrumb :routerProp="routerProp"></v-breadcrumb>
-  <el-form :inline="true" :model="formInline" class="demo-form-inline">
+  <el-form :inline="true" class="demo-form-inline">
     <el-form-item>
       <router-link :to="{path: '/roleAddAdminPage'}">
       <el-button type="primary">增加角色</el-button>
@@ -52,22 +52,36 @@
       </template>
     </el-table-column>
   </el-table>
+  <div class="pagination-wrap">
+    <el-pagination 
+    @size-change="handleSizeChange" 
+    @current-change="handleCurrentChange" 
+    :current-page="page.current_page" 
+    :page-sizes="[10,15, 25, 50, 100]" 
+    :page-size="page.per_page" 
+    layout="total, sizes, prev, pager, next, jumper" 
+    :total="page.total">
+    </el-pagination>
+  </div>
   <el-dialog title="角色编辑" :visible.sync="dialogFormVisible" >
-    <el-form :model="row">
-      <el-form-item label="角色名称" :label-width="formLabelWidth">
+    <el-form :model="row" ref="form" :rules="rules">
+      <el-form-item label="角色名称" :label-width="formLabelWidth" prop="name">
         <el-input v-model="row.name" auto-complete="off"></el-input>
       </el-form-item>
-      <el-form-item label="角色描述" :label-width="formLabelWidth">
-        <el-input v-model="row.description" auto-complete="off"></el-input>
+      <el-form-item label="角色描述" :label-width="formLabelWidth" prop="description">
+        <el-input type="textarea" v-model="row.description" auto-complete="off"></el-input>
       </el-form-item>
       <el-form-item label="所属站点" :label-width="formLabelWidth">
-        <el-select v-model="row.client_id" placeholder="请选择活动区域">
-          <template v-for="client in clients">
-            <el-option :label="client.name" :value="client.id"></el-option>
-          </template>
-      </el-select>
+        <el-select v-model="row.client_id" placeholder="请选择站点">
+            <el-option 
+            v-for="client in clients" 
+            :key="client.id"
+            :label="client.name" 
+            :value="client.id"
+            ></el-option>
+        </el-select>
       </el-form-item>
-        <el-form-item label="选择权限"  :label-width="formLabelWidth">
+        <el-form-item label="选择权限"  :label-width="formLabelWidth" >
             <el-tree
               :data="dataTableTree"
               show-checkbox
@@ -79,14 +93,12 @@
             </el-tree>
         </el-form-item>
       </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button @click="dialogFormVisible = false">取 消</el-button>
-      <el-button type="primary" @click="handleEditSubmit">保存</el-button>
-    </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleEditSubmit('form')">确 定</el-button>
+      </div>
   </el-dialog>
-  <div>
-    {{row}}
-  </div>
+  {{page}}
   </div>
 </template>
 
@@ -99,13 +111,20 @@ import vBreadcrumb from '@/layout/breadcrumb'
       vBreadcrumb
     },
     data() {
+      var validateCheckList = (rule, value, callback)=>{
+        console.log(this.$refs.tree.getCheckedKeys().length)
+        if(this.$refs.tree.getCheckedKeys().length === 0){
+          callback(new Error('请选择权限'));
+        }
+      }
       return {
-        routerProp:"角色管理",
+      routerProp:[
+          {
+            lebal:'角色管理',
+            path:'/roleAdminPage'
+          }
+        ],
         tableData: [],
-        formInline: {
-          user: '',
-          region: ''
-        },
         dialogFormVisible: false,
         formLabelWidth: '120px',
         row:{
@@ -119,10 +138,32 @@ import vBreadcrumb from '@/layout/breadcrumb'
         defaultProps: {
           children: 'children',
           label: 'name'
+        },
+        rules:{
+          name: [
+            { required: true, message: '请输入名称', trigger: 'blur' }
+          ],
+          description:[
+            { required: true, message: '请输入描述', trigger: 'blur' }
+          ]
+        },
+        page:{
+          total:0,
+          per_page:15,
+          current_page:1
         }
       }
     },
     methods: {
+      handleSizeChange(val) {
+        this.page.per_page = val
+        this.refreshTableWithPage(this.page.current_page,val)
+      },
+      handleCurrentChange(val) {
+        this.page.current_page = val
+        console.log(val,this.page.per_page)
+        this.refreshTableWithPage(val,this.page.per_page)
+      },
       setCheckedKeys() {
         this.$refs.tree.setCheckedKeys([])
         this.$refs.tree.setCheckedKeys(this.row.permissions.map(ele => ele.id));
@@ -145,7 +186,7 @@ import vBreadcrumb from '@/layout/breadcrumb'
           this.$http.post("http://192.168.1.75/admin/role/"+row.client_id,params).then(
             (res)=>{
                 if(res.data.msg === "删除成功"){
-                  this.refreshTable()
+                  this.refreshTableWithPage(this.page.current_page,this.page.per_page)
                   this.$message({
                     type: 'success',
                     message: res.data.msg
@@ -161,32 +202,39 @@ import vBreadcrumb from '@/layout/breadcrumb'
           });          
         });
       },
-      handleEditSubmit() {
-        this.dialogFormVisible = false;
-        let paramData = {
-          _method: 'put',
-          client_id: this.row.client_id,
-          name: this.row.name,
-          description: this.row.description,
-          permissions: this.$refs.tree.getCheckedKeys()
-        }
-        this.$http.post("http://192.168.1.75/admin/role/"+this.row.id, paramData).then(
-          (res)=>{
-              if(res.data.msg=='success'){
-                  this.refreshTable();
-                  this.$message({
-                  message: '恭喜你，编辑保存成功',
-                  type: 'success'
-                });
-              }
-          },(err)=>{
-              console.log(err)
-          })
+      handleEditSubmit(form) {
+        this.$refs[form].validate((valid) => {
+          if (valid) {
+            this.dialogFormVisible = false;
+            let paramData = {
+              _method: 'put',
+              client_id: this.row.client_id,
+              name: this.row.name,
+              description: this.row.description,
+              permissions: this.$refs.tree.getCheckedKeys()
+            }
+            this.$http.post("http://192.168.1.75/admin/role/"+this.row.id, paramData).then(
+              (res)=>{
+                  if(res.data.msg=='success'){
+                      this.refreshTableWithPage(this.page.current_page,this.page.per_page);
+                      this.$message({
+                      message: '恭喜你，编辑保存成功',
+                      type: 'success'
+                    });
+                  }
+              },(err)=>{
+                  console.log(err)
+              })
+
+          } else {
+            return false;
+          }
+        });
         },
-        refreshTable(){
-          this.$http.post("http://192.168.1.75/admin/role/index").then(
+        refreshTableWithPage(page,per_page){
+          this.$http.post("http://192.168.1.75/admin/role/index?page="+page+"&per_page="+per_page).then(
           (res)=>{
-            this.$store.commit("upadtegetAdminTableData",res.data.data)
+            this.$store.commit("upadtegetAdminTableData",res.data.data.data)
             this.tableData = this.$store.getters.getAdminTableData
           },(err)=>{
               console.log(err)
@@ -228,8 +276,10 @@ import vBreadcrumb from '@/layout/breadcrumb'
                             }
                       })
                       var obj = []
-                      for(var i = 0; i < levelAry[0].length; i++){
+                      for(var i in ary){
+                          if(ary[i].cid === 0){
                             obj.push(ary[i])
+                          }
                       }
                       return obj
                 }
@@ -248,19 +298,23 @@ import vBreadcrumb from '@/layout/breadcrumb'
       });
          this.$http.get("http://192.168.1.75/admin/getpermissionlist").then(
       (res)=>{
+        console.log(res.data)
         this.dataTableTree = this.__treeDataFormate(res.data)
       },(err)=>{
           console.log(err)
       });
        this.$http.get("http://192.168.1.75/admin/get_clients").then(
       (res)=>{
-        this.clients = res.data;
+        this.clients = res.data.data
       },(err)=>{
           console.log(err)
       });
       this.$http.post("http://192.168.1.75/admin/role/index").then(
       (res)=>{
-        this.$store.commit("upadtegetAdminTableData",res.data.data)
+        this.$store.commit("upadtegetAdminTableData",res.data.data.data)
+          this.page.total = res.data.data.total
+          this.page.per_page = res.data.data.per_page
+          this.page.current_page = res.data.data.current_page
         this.tableData = this.$store.getters.getAdminTableData
       },(err)=>{
           console.log(err)
@@ -269,4 +323,8 @@ import vBreadcrumb from '@/layout/breadcrumb'
   }
 </script>
 <style scoped>
+.pagination-wrap{
+    text-align: right;
+    margin-top: 20px;
+}
 </style>

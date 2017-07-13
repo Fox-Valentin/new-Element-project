@@ -15,9 +15,8 @@ import userAddPage from '@/pages/user/userAddPage'
 import clientAdminPage from '@/pages/client/clientAdminPage'
 import clientAddPage from '@/pages/client/clientAddPage'
 
-import permissionAdmin from '@/pages/permission/permissionAdmin'
-import editRoleRightsPage from '@/pages/permission/editRoleRightsPage'
-
+import permissionAdminPage from '@/pages/permission/permissionAdminPage'
+import permissionAddPage from '@/pages/permission/permissionAddPage'
 
 Vue.use(Router)
 export default new Router({
@@ -37,12 +36,12 @@ export default new Router({
           component: otherPage
         },
         {
-          path: 'editRoleRightsPage',
-          component: editRoleRightsPage
+          path: 'permissionAdminPage',
+          component: permissionAdminPage
         },
         {
-          path: 'permissionAdmin',
-          component: permissionAdmin
+          path: 'permissionAddPage',
+          component: permissionAddPage
         },
         {
           path: 'roleAdminPage',

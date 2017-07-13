@@ -1,49 +1,80 @@
 <template>
-<el-form ref="ruleForm" :model="form" label-width="80px" :rules="rules">
-  <el-form-item label="角色名称" prop="name">
-    <el-input v-model="form.name"></el-input>
-  </el-form-item>
-  <el-form-item label="角色描述" prop="description">
-    <el-input type="textarea" v-model="form.description"></el-input>
-  </el-form-item>
-  <el-form-item label="选择站点" prop="website">
-    <el-select v-model="optionValue" placeholder="请选择" size="large">
-      <el-option
-        v-for="item in options"
-        :key="item.id"
-        :label="item.name"
-        :value="item.id">
-      </el-option>
-    </el-select>
-  </el-form-item>
-  <el-form-item label="选择权限">
-    <div class="tree-wrap">
-      <el-tree
-        :data="dataTable"
-        show-checkbox
-        default-expand-all
-        node-key="id"
-        ref="tree"
-        highlight-current
-        :props="defaultProps">
-      </el-tree>
-    </div>
-  </el-form-item>
-  <div class="buttons">
-    <el-button type="primary" @click="onSubmit('ruleForm')">立即创建</el-button>
+  <div>
+      <v-breadcrumb :routerProp="routerProp"></v-breadcrumb>
+      <el-form :inline="true" class="demo-form-inline">
+        <el-form-item>
+          <router-link :to="{path: '/roleAdminPage'}">
+          <el-button type="primary">返回角色管理</el-button>
+          </router-link>
+        </el-form-item>
+      </el-form>
+    <el-form ref="ruleForm" :model="form" label-width="80px" :rules="rules">
+      <el-form-item label="角色名称" prop="name">
+        <el-input v-model="form.name"></el-input>
+      </el-form-item>
+      <el-form-item label="角色描述" prop="description">
+        <el-input type="textarea" v-model="form.description"></el-input>
+      </el-form-item>
+      <el-form-item label="选择站点" prop="website">
+        <el-select v-model="optionValue" placeholder="请选择" size="large">
+          <el-option
+            v-for="client in clients" 
+            :key="client.id"
+            :label="client.name" 
+            :value="client.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="选择权限">
+        <div class="tree-wrap">
+          <el-tree
+            :data="dataTable"
+            show-checkbox
+            default-expand-all
+            node-key="id"
+            ref="tree"
+            highlight-current
+            :props="defaultProps">
+          </el-tree>
+        </div>
+      </el-form-item>
+      <div class="buttons">
+        <el-button type="primary" @click="onSubmit('ruleForm')">立即创建</el-button>
+      </div>
+    </el-form>
   </div>
-</el-form>
 </template>
 <script>
 import Vue from "vue"
+import vBreadcrumb from '@/layout/breadcrumb'
   export default {
+    components: {
+      vBreadcrumb
+    },
     data() {
+      var validateWebsite = (rule, value, callback) => {
+        if (!this.optionValue) {
+          callback(new Error('请选择站点'))
+        }else{
+          callback();
+        }
+      }
       return {
+      routerProp:[
+        {
+          lebal:'角色管理',
+          path:'/roleAdminPage'
+        },
+        {
+          lebal:'添加角色',
+          path:'/roleAddAdminPage'
+        },
+      ],
         form: {
           name: '',
           desc: ''
         },
-        options: [],
+        clients: [],
         optionValue: '',
          dataTable:null,
         defaultProps: {
@@ -55,7 +86,7 @@ import Vue from "vue"
             { required: true, message: '请输入名称', trigger: 'blur' }
           ],
           website:[
-           { required: true, message: '请选择站点', trigger: 'change' }
+           { validator: validateWebsite, trigger: 'change' }
           ],
           description:[
             { required: true, message: '请输入描述', trigger: 'blur' }
@@ -72,7 +103,8 @@ import Vue from "vue"
       })
       this.$http.get("http://192.168.1.75/admin/get_clients").then(
       (res)=>{
-        this.options = res.data
+        console.log(res.data.data)
+        this.clients = res.data.data
       },(err)=>{
           console.log(err)
       })
@@ -84,6 +116,7 @@ import Vue from "vue"
     methods: {
       onSubmit(formName) {
         this.$refs[formName].validate((valid) => {
+            console.log(11)
           if (valid) {
             Vue.http.interceptors.push(function(request, next) {
               var token = "Bearer " + localStorage.getItem("currentUser_token")
@@ -94,7 +127,7 @@ import Vue from "vue"
             var params = {
               "name":this.form.name,
               "description":this.form.description,
-              "permission":this.$refs.tree.getCheckedKeys(),
+              "permissions":this.$refs.tree.getCheckedKeys(),
               "client_id":this.optionValue
             }
             this.$http.post("http://192.168.1.75/admin/role",params).then(
@@ -147,8 +180,10 @@ import Vue from "vue"
                           }
                     })
                     var obj = []
-                    for(var i = 0; i < levelAry[0].length; i++){
+                    for(var i in ary){
+                        if(ary[i].cid === 0){
                           obj.push(ary[i])
+                        }
                     }
                     return obj
               }

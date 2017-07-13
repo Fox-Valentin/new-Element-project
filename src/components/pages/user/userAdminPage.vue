@@ -1,7 +1,7 @@
 <template>
   <div>
       <v-breadcrumb :routerProp="routerProp"></v-breadcrumb>
-  <el-form :inline="true" :model="formInline" class="demo-form-inline">
+  <el-form :inline="true" class="demo-form-inline">
     <el-form-item>
       <router-link :to="{path: '/userAddPage'}">
       <el-button type="primary">增加用户</el-button>
@@ -45,20 +45,34 @@
       </template>
     </el-table-column>
   </el-table>
-  <el-dialog title="编辑用户" :visible.sync="dialogFormVisible"   size="tiny">
-      <el-form v-model="row">
-        <el-form-item label="用户名称" :label-width="formLabelWidth">
+  <div class="pagination-wrap">
+    <el-pagination 
+    @size-change="handleSizeChange" 
+    @current-change="handleCurrentChange" 
+    :current-page="page.current_page" 
+    :page-sizes="[10,15, 25, 50, 100]" 
+    :page-size="page.per_page" 
+    layout="total, sizes, prev, pager, next, jumper" 
+    :total="page.total">
+    </el-pagination>
+  </div>
+  <el-dialog title="编辑用户" :visible.sync="dialogFormVisible">
+      <el-form :model="row"  ref="form" :rules="rules">
+        <el-form-item label="用户名称" :label-width="formLabelWidth"  prop="name">
           <el-input auto-complete="off"  v-model="row.name"></el-input>
         </el-form-item>
-        <el-form-item label="用户密码" :label-width="formLabelWidth">
-          <el-input auto-complete="off"  v-model="row.password"></el-input>
+        <el-form-item label="用户密码" :label-width="formLabelWidth"  prop="pass">
+          <el-input auto-complete="off" type="password"  v-model="row.password"></el-input>
         </el-form-item>
-        <el-form-item label="用户邮箱" :label-width="formLabelWidth">
+        <el-form-item label="重复输入密码" :label-width="formLabelWidth"  prop="checkPass">
+          <el-input auto-complete="off" type="password" v-model="row.checkPass"></el-input>
+        </el-form-item>
+        <el-form-item label="用户邮箱" :label-width="formLabelWidth"  prop="email">
           <el-input auto-complete="off"  v-model="row.email"></el-input>
         </el-form-item>
-        <el-form-item label="角色选择" :label-width="formLabelWidth">
-          <el-checkbox-group v-model="checkList">
-            <template v-for="roleList in roleLists">
+        <el-form-item label="角色选择" :label-width="formLabelWidth" prop="roleList">
+          <el-checkbox-group v-model="checkList" >
+            <template v-for="roleList in checkLists">
                   <el-checkbox :label="roleList.id">{{roleList.name}}</el-checkbox>
             </template>
           </el-checkbox-group>
@@ -66,10 +80,9 @@
       </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="dialogFormVisible = false">取 消</el-button>
-      <el-button type="primary" @click="handleEditSubmit">确 定</el-button>
+      <el-button type="primary" @click="editSubmit('form')">确 定</el-button>
     </div>
   </el-dialog>
-    {{row}}
   </div>
 </template>
 
@@ -82,26 +95,79 @@ import vBreadcrumb from '@/layout/breadcrumb'
       vBreadcrumb
     },
     data() {
+      var validatePass = (rule, value, callback) => {
+          if (this.row.checkPass !== '') {
+            this.$refs.form.validateField('checkPass');
+          }
+          callback();
+      }
+      var validatePass2 = (rule, value, callback) => {
+        if (value !== this.row.password) {
+          callback(new Error('两次输入密码不一致!'));
+        } else {
+          callback();
+        }
+      }
+      var validatePass3 = (rule, value, callback) => {
+        if(this.checkList.length == 0){
+          callback(new Error('请选择角色'));
+        }else{
+          callback();
+        }
+      }
       return {
-        routerProp:"用户管理",
+        routerProp:[
+          {
+            lebal:'用户管理',
+            path:'/userAdminPage'
+          }
+        ],
         tableData: [],
-        formInline: {
-          user: '',
-          region: ''
-        },
         formLabelWidth: '120px',
         dialogFormVisible: false,
         row:{
           id:"",
           name:"",
           password:"",
+          checkPass:"",
           email:""
         },
         checkList:[],
-        roleLists:[]
+        checkLists:[],
+        rules: {
+          name: [
+            { required: true, message: '请输入名称', trigger: 'blur' }
+          ],
+          email:[
+            { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+            { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change' }
+          ],
+          roleList:[
+            { validator: validatePass3, trigger: 'change' }
+          ],
+          pass:[
+              {validator: validatePass,trigger: 'blur'}
+            ],
+          checkPass: [
+            { validator: validatePass2, trigger: 'blur' }
+          ]
+        },
+        page:{
+          total:0,
+          per_page:15,
+          current_page:1
+        }
       }
     }, 
     methods: {
+      handleSizeChange(val) {
+        this.page.per_page = val
+        this.refreshTableWithPage(this.page.current_page,val)
+      },
+      handleCurrentChange(val) {
+        this.page.current_page = val
+        this.refreshTableWithPage(val,this.page.per_page)
+      },
       handleEdit(index, row) {
         this.dialogFormVisible=true;
         this.row = row
@@ -117,6 +183,7 @@ import vBreadcrumb from '@/layout/breadcrumb'
             this.$http.post("http://192.168.1.75/admin/user/"+row.id,params).then(
               (res)=>{
                 if(res.data.msg == "删除成功"){
+                  this.refreshTableWithPage(this.current_page,this.per_page)
                   this.$message({
                     type: 'success',
                     message: res.data.msg
@@ -131,32 +198,41 @@ import vBreadcrumb from '@/layout/breadcrumb'
             });          
           });
         },
-      handleEditSubmit(){
-        this.dialogFormVisible=false
-        let params = {
-          _method: 'put',
-          name: this.row.name,
-          password: this.row.password,
-          email: this.row.email,
-          roles: this.checkList
-        }
-        this.$http.post("http://192.168.1.75/admin/user/"+this.row.id,params).then(
-          (res)=>{
-            if(res.data.msg=='success'){
-                this.refreshTable();
-                this.$message({
-                message: '编辑保存成功',
-                type: 'success'
-              });
+      editSubmit(form){
+        this.$refs[form].validate((valid) => {
+            if (valid) {
+                this.dialogFormVisible=false
+                let params = {
+                  _method: 'put',
+                  name: this.row.name,
+                  password: this.row.password,
+                  email: this.row.email,
+                  roles: this.checkList.join(",")
+                }
+              this.$http.post("http://192.168.1.75/admin/user/"+this.row.id,params).then(
+                (res)=>{
+                  if(res.data.msg=='更新成功'){
+                      this.refreshTableWithPage(this.current_page,this.per_page)
+                      this.$message({
+                      message: '编辑保存成功',
+                      type: 'success'
+                    });
+                  }
+                },
+                (err)=>{}
+              )
+            }else{
+                return false
             }
-          },
-          (err)=>{}
-        )
+          })
       },
-      refreshTable(){
-        this.$http.post("http://192.168.1.75/admin/user/index").then(
+      refreshTableWithPage(page,per_page){
+        if(!per_page){
+          per_page = 15
+        }
+        this.$http.post("http://192.168.1.75/admin/user/index?page="+page+"&per_page="+per_page).then(
           (res)=>{
-            this.tableData = res.data.data
+            this.tableData = res.data.data.data
           },
           (err)=>{
             console.log(err)
@@ -173,7 +249,10 @@ import vBreadcrumb from '@/layout/breadcrumb'
     });
       this.$http.post("http://192.168.1.75/admin/user/index").then(
         (res)=>{
-          this.tableData = res.data.data
+          this.page.total = res.data.data.total
+          this.page.per_page = res.data.data.per_page
+          this.page.current_page = res.data.data.current_page
+          this.tableData = res.data.data.data
         },
         (err)=>{
           console.log(err)
@@ -181,7 +260,7 @@ import vBreadcrumb from '@/layout/breadcrumb'
       )
       this.$http.post("http://192.168.1.75/admin/role/index").then(
       (res)=>{
-        this.roleLists = res.data.data;
+        this.checkLists = res.data.data.data
       },(err)=>{
           console.log(err)
       });
@@ -189,4 +268,8 @@ import vBreadcrumb from '@/layout/breadcrumb'
   }
 </script>
 <style scoped>
+.pagination-wrap{
+    text-align: right;
+    margin-top: 20px;
+}
 </style>

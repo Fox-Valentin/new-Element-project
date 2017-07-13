@@ -1,21 +1,52 @@
 <template>
-<el-form ref="form" :rules="rules" :model="form" label-width="80px">
-  <el-form-item label="站点名称" prop="name">
-    <el-input v-model="form.name"></el-input>
-  </el-form-item>
-  <el-form-item label="定向地址" prop="website">
-    <el-input v-model="form.redirect"></el-input>
-  </el-form-item>
-  <el-form-item>
-    <el-button type="primary" @click="onSubmit('form')">立即创建</el-button>
-  </el-form-item>
-</el-form>
+  <div>
+    <v-breadcrumb :routerProp="routerProp"></v-breadcrumb>
+      <el-form :inline="true" class="demo-form-inline">
+        <el-form-item>
+          <router-link :to="{path: '/clientAdminPage'}">
+          <el-button type="primary">返回站点管理</el-button>
+          </router-link>
+        </el-form-item>
+      </el-form>
+    <el-form ref="form" :rules="rules" :model="form" label-width="80px">
+      <el-form-item label="站点名称" prop="name">
+        <el-input v-model="form.name"></el-input>
+      </el-form-item>
+      <el-form-item label="定向地址" prop="website">
+        <el-input v-model="form.redirect"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onSubmit('form')">立即创建</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 <script>
 import Vue from "vue"
+import vBreadcrumb from '@/layout/breadcrumb'
   export default {
+    components: {
+      vBreadcrumb
+    },
     data() {
+      var validatePass1 = (rule, value, callback) => {
+          if(!this.form.redirect){
+            callback(new Error('请输入定向地址'));
+          }else{
+            callback();
+          }
+      }
       return {
+        routerProp:[
+          {
+            lebal:'站点管理',
+            path:'/clientAdminPage'
+          },
+          {
+            lebal:'添加站点',
+            path:'/clientAddPage'
+          },
+        ],
         form: {
           name: '',
           description: ''
@@ -27,7 +58,7 @@ import Vue from "vue"
             { required: true, message: '请输入名称', trigger: 'blur' }
           ],
           website:[
-           { required: true, message: '请输入地址', trigger: 'blur' }
+           { validator: validatePass1, required: true, trigger: 'blur' }
           ]
         }
       }
@@ -65,3 +96,5 @@ import Vue from "vue"
     }
   }
 </script>
+<style scoped>
+</style>
