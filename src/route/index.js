@@ -19,7 +19,7 @@ import permissionAdminPage from '@/pages/permission/permissionAdminPage'
 import permissionAddPage from '@/pages/permission/permissionAddPage'
 
 Vue.use(Router)
-export default new Router({
+const router = new Router({
   mode: 'history',
   routes: [
     {
@@ -76,3 +76,10 @@ export default new Router({
     }
   ]
 })
+router.beforeEach((to, from, next) => {
+    if(!localStorage.getItem("currentUser_token")){
+      return
+    }
+    next()
+})
+export default router
