@@ -1,22 +1,17 @@
 <template>
   <div class="header">
     <el-row :gutter="20">
-      <el-col :span="8"  :offset="16">
+      <el-col :span="6"  :offset="20">
         <div class="grid-content">
           <el-row :gutter="20">
-            <el-col :span="8">
+            <el-col :span="4" >
               <div class="grid-content">
                 <el-button type="text" class="headerLink">用户名</el-button>
               </div>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="4">
               <div class="grid-content">
-                <el-button type="text" class="headerLink">登录</el-button>
-              </div>
-            </el-col>
-            <el-col :span="8">
-              <div class="grid-content">
-                <el-button type="text" class="headerLink">退出</el-button>
+                <el-button type="text" class="headerLink" @click="logout">退出</el-button>
               </div>
             </el-col>
           </el-row>
@@ -27,7 +22,12 @@
 </template>
 <script>
 export default {
-  
+  methods: {
+    logout(){
+      localStorage.removeItem("currentUser_token")
+      window.location.href = "http://192.168.1.75/api/redirect"
+    }
+  }
 }
 </script>
 <style scoped>

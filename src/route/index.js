@@ -78,6 +78,7 @@ const router = new Router({
 })
 router.beforeEach((to, from, next) => {
     if(!localStorage.getItem("currentUser_token")){
+      window.location.href = "http://192.168.1.75/api/redirect"
       return
     }
     next()

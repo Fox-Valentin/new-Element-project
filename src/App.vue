@@ -14,14 +14,16 @@ export default {
     }
   },
   created () {
-    this.loading = false    
-    /*if (this.$store.getters.getLoginState === false) {
-        this.$router.replace('/login')
-        this.loading = false
+    this.loading = false  
+    if(location.hash.indexOf("access_token") !== -1){
+      let urTokenKey = "access_token"
+      let urlSliceIndex = location.hash.indexOf("access_token") + urTokenKey.length + 1
+      let urlSliceEnd = location.hash.slice(urlSliceIndex).indexOf("&")
+      let token =  location.hash.slice(urlSliceIndex).slice(0,urlSliceEnd)
+      this.$store.commit("setUser",token)
     }
-    window.location.href = "http://192.168.1.75/api/redirect"*/
     if(!localStorage.getItem("currentUser_token")){
-       //location.href = "http://192.168.1.75/api/redirect"
+       location.href = "http://192.168.1.75/api/redirect"
     }
   }
 }
